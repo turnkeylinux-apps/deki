@@ -29,34 +29,23 @@ a2enmod proxy_http
 EMAIL=$(echo $ADMIN_MAIL | sed s/@/%40/)
 URL="http://127.0.0.1/config/install.php?params=start"
 
-curl --data "SelectedEdition=core&Sitename=Mindtouch+Deki&SysopEmail=$EMAIL&SiteLang=en-us&RegistrarFirstName=&RegistrarLastName=&RegistrarPhone=&SysopPass=$ADMIN_PASS&SysopPass2=$ADMIN_PASS&DBserver=localhost&DBname=$DB_NAME&DBuser=$DB_USER&RootUser=root&RootPW=&Mono=%2Fusr%2Fbin%2Fmono&ImageMagickConvert=%2Fusr%2Fbin%2Fconvert&ImageMagickIdentify=%2Fusr%2Fbin%2Fidentify&prince=%2Fusr%2Fbin%2Fprince&RegistrarCount=0&RegistrarDept=" $URL
+curl --data "SelectedEdition=core&Sitename=Mindtouch+Core&SysopEmail=$EMAIL&SiteLang=en-us&RegistrarFirstName=&RegistrarLastName=&RegistrarPhone=&SysopPass=$ADMIN_PASS&SysopPass2=$ADMIN_PASS&DBserver=localhost&DBname=$DB_NAME&DBuser=$DB_USER&RootUser=root&RootPW=&Mono=%2Fusr%2Fbin%2Fmono&ImageMagickConvert=%2Fusr%2Fbin%2Fconvert&ImageMagickIdentify=%2Fusr%2Fbin%2Fidentify&prince=%2Fusr%2Fbin%2Fprince&RegistrarCount=0&RegistrarDept=" $URL
 
 CONFIG=$WEB_DIR/config
 mkdir -p $ETC_DIR
 mv $CONFIG/mindtouch.host.conf $ETC_DIR
 mv $CONFIG/mindtouch.deki.startup.xml $ETC_DIR
-mv $CONFIG/LocalSettings.php $ETC_DIR
-ln -s /etc/dekiwiki/LocalSettings.php $WEB_DIR/LocalSettings.php
+mv $CONFIG/LocalSettings.php $WEB_DIR
+ln -s $WEB_DIR/LocalSettings.php $ETC_DIR/LocalSettings.php
 
 # create welcome page
 mysql --defaults-extra-file=/etc/mysql/debian.cnf <<EOF
 USE $DB_NAME;
 UPDATE pages SET
-page_display_name = 'TurnKey Mindtouch Deki',
-page_tip = 'TurnKey Mindtouch Deki - getting started...',
-page_text = '<h2>Getting started</h2> <ul> <li>Log in as <strong>$ADMIN_NAME</strong> and start your Wiki!</li> <li>Refer to the <a class="external" href="http://www.turnkeylinux.org/deki">TurnKey Mindtouch Deki release notes</a></li> </ul> <p> </p> <pre class="script">&lt;h2&gt;&quot;Welcome to MindTouch&quot;;&lt;/h2&gt; if (user.admin) { wiki.template(&quot;MindTouch/OOBE/Core/Admin_Tabs&quot;); } else { wiki.template(&quot;MindTouch/OOBE/Core/User_Tabs&quot;); } </pre>'
+page_display_name = 'TurnKey Mindtouch Core (Deki)',
+page_tip = 'TurnKey Mindtouch Core (Deki) - getting started...',
+page_text = '<h2>Getting started</h2> <ul> <li>Log in as <strong>$ADMIN_NAME</strong> and start your Wiki!</li> <li>Refer to the <a class="external" href="http://www.turnkeylinux.org/deki">TurnKey Mindtouch Core (Deki) release notes</a></li> </ul> <p> </p> <pre class="script">&lt;h2&gt;&quot;Welcome to MindTouch&quot;;&lt;/h2&gt; if (user.admin) { wiki.template(&quot;MindTouch/OOBE/Core/Admin_Tabs&quot;); } else { wiki.template(&quot;MindTouch/OOBE/Core/User_Tabs&quot;); } </pre>'
 WHERE page_id = '22';
-EOF
-
-# set default template
-mysql --defaults-extra-file=/etc/mysql/debian.cnf <<EOF
-USE $DB_NAME;
-INSERT config (config_key, config_value) VALUES ('ui/template', 'deucebeta');
-EOF
-
-mysql --defaults-extra-file=/etc/mysql/debian.cnf <<EOF
-USE $DB_NAME;
-INSERT config (config_key, config_value) VALUES ('ui/skin', 'lighty-blue');
 EOF
 
 # install trusted root certificates from mozilla lxr into mono cert store
@@ -67,13 +56,6 @@ rm $ETC_DIR/certdata.txt
 # disable gzip for apache-credit
 CONF=$WEB_DIR/includes/DefaultSettings.php
 sed -i "s|\$wgUseGzDisplay = \(.*\)|\$wgUseGzDisplay = false;|" $CONF
-
-# patch fckeditor to not display turnkey-credit (ie. table dialog)
-cat >> $WEB_DIR/editor/fckeditor/core/editor/skins/default/fck_dialog.css<<EOF
-#turnkey-credit {
-    display: none;
-}
-EOF
 
 # stop mysql and apache
 /etc/init.d/mysql stop
