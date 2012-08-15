@@ -57,6 +57,12 @@ rm $ETC_DIR/certdata.txt
 CONF=$WEB_DIR/includes/DefaultSettings.php
 sed -i "s|\$wgUseGzDisplay = \(.*\)|\$wgUseGzDisplay = false;|" $CONF
 
+# fix dekiwiki service so it starts when dependent services are up
+CONF=/etc/init.d/dekiwiki
+sed -i "s|Required-Start.*|Required-Start: \$all|" $CONF
+sed -i "s|Required-Stop.*|Required-Stop:  \$network|" $CONF
+insserv
+
 # stop mysql and apache
 /etc/init.d/mysql stop
 /etc/init.d/apache2 stop
