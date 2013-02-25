@@ -10,6 +10,31 @@ DB_USER=wikiuser
 ETC_DIR=/etc/dekiwiki
 WEB_DIR=/var/www/dekiwiki
 
+SRC=/usr/local/src
+
+# download and install prince
+dl() {
+    [ "$FAB_HTTP_PROXY" ] && PROXY="--proxy $FAB_HTTP_PROXY"
+    cd $2; curl -L -f -O $PROXY $1; cd -
+}
+
+PRINCE_VER=8.1-4_ubuntu10.04_${FAB_ARCH}
+dl http://www.princexml.com/download/prince_${PRINCE_VER}.deb $SRC
+DEBIAN_FRONTEND=noninteractive dpkg -i $SRC/prince_${PRINCE_VER}.deb
+rm $SRC/prince_${PRINCE_VER}.deb
+
+# configure mindtouch repo and install
+MINDTOUCH_LIST=/etc/apt/sources.list.d/mindtouch.list
+cat >$MINDTOUCH_LIST<<EOF
+deb http://repo.mindtouch.com Debian_6.0/
+EOF
+
+apt-get update
+DEBIAN_FRONTEND=noninteractive apt-get --force-yes --assume-yes install mindtouch
+
+# disable mindtouch repo (no release file for pinning)
+sed -i "s|^deb|# deb|" $MINDTOUCH_LIST
+
 # configure apache
 rm /etc/apache2/sites-available/dekiwiki
 ln -s $ETC_DIR/apache.conf /etc/apache2/sites-available/dekiwiki
