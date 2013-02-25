@@ -48,11 +48,6 @@ page_text = '<h2>Getting started</h2> <ul> <li>Log in as <strong>$ADMIN_NAME</st
 WHERE page_id = '22';
 EOF
 
-# install trusted root certificates from mozilla lxr into mono cert store
-gzip -d $ETC_DIR/certdata.txt.gz
-su dekiwiki -c "mozroots --import --sync --file $ETC_DIR/certdata.txt"
-rm $ETC_DIR/certdata.txt
-
 # disable gzip for apache-credit
 CONF=$WEB_DIR/includes/DefaultSettings.php
 sed -i "s|\$wgUseGzDisplay = \(.*\)|\$wgUseGzDisplay = false;|" $CONF

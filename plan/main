@@ -4,5 +4,6 @@
 mindtouch
 prince
 
+mono-devel                  /* provides mozroots */
 ttf-mscorefonts-installer   /* provides msttcorefonts */
 

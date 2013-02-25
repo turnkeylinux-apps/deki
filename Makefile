@@ -2,10 +2,6 @@ define root.build/pre
 		fab-apply-overlay license $O/root.build
 endef
 
-define root.build/post
-		fab-install $O/root.build plan/mozroots
-endef
-
 WEBMIN_FW_TCP_INCOMING_REJECT = 8081
 
 COMMON_CONF = apache-credit
