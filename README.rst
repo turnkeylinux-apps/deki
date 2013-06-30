@@ -13,7 +13,8 @@ and on top of that:
 
 - MindTouch Core (Deki) configurations:
 
-   - Installed from upstream Debian package to /var/www/dekiwiki
+   - Installed from upstream Debian package archive providing easy
+     upgrade path.
    - Includes imported trusted root certificates from Mozilla's LXR.
    - Includes msttcorefonts (recommended fonts for Deki).
    - Set default template to deucebeta lighty-blue (more attractive).
